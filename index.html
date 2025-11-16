@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FHome AI - Multilingual Chatbot</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+
   <style>
     * {
       margin: 0;
@@ -303,8 +304,12 @@
     }
 
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .loading-text {
@@ -397,6 +402,7 @@
       .message-bubble {
         max-width: 85%;
       }
+
       .sidebar {
         width: 100%;
         right: -100%;
@@ -404,6 +410,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="overlay" id="overlay"></div>
 
@@ -411,14 +418,22 @@
     <div class="sidebar-header">
       <h2>History chats</h2>
       <button class="icon-btn" id="closeSidebar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
+
     <div class="sidebar-content">
       <button class="new-chat-btn" id="newChatBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
         New chat
       </button>
+
       <div id="chatsList"></div>
     </div>
   </div>
@@ -426,16 +441,26 @@
   <div class="container">
     <div class="header">
       <div class="header-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
       </div>
+
       <div class="header-content">
         <div class="header-text">
           <h1>FHome AI</h1>
           <p>FHome AI uses a search and response system using the Internet without using a database or other AI</p>
         </div>
+
         <div class="header-actions">
           <button class="icon-btn" id="openSidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
           </button>
         </div>
       </div>
@@ -447,30 +472,34 @@
 
     <div class="messages" id="messages">
       <div class="message bot">
-        <div class="message-bubble">Hi! I'm a multilingual AI bot, FHome AI. Write me anything in any language, and I'll search the internet for the correct answer!</div>
+        <div class="message-bubble">
+          Hi! I'm a multilingual AI bot, FHome AI. Write me anything in any language, and I'll search the internet for the correct answer!
+        </div>
       </div>
     </div>
 
     <div class="input-container">
       <div class="input-wrapper">
-        <input 
-          type="text" 
-          id="input" 
-          class="input-field" 
-          placeholder="Write something to FHome AI..."
-        />
+        <input type="text" id="input" class="input-field" placeholder="Write something to FHome AI..." />
+
         <button id="sendBtn" class="send-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m22 2-7 20-4-9-9-4Z"></path>
+            <path d="M22 2 11 13"></path>
+          </svg>
         </button>
       </div>
-      <p class="footer-text">FHome AI uses web search to generate answers. AI can make mistakes, there is no guarantee of its answers</p>
+
+      <p class="footer-text">
+        FHome AI uses web search to generate answers. AI can make mistakes, there is no guarantee of its answers
+      </p>
     </div>
   </div>
 
   <script>
-    const GEMINI_API_KEY = 'AIzaSyCX1OUsAj44jYd0BXBQYqatIBJcGpVSyh0'; // This is internet API for search (Use Gemini only for search the internet!) This API is free you can use it!
+    const GEMINI_API_KEY = 'AIzaSyCX1OUsAj44jYd0BXBQYqatIBJcGpVSyh0';
     const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
-    
+
     const RATE_LIMIT = 60;
     const RATE_WINDOW = 60000;
     let requestTimestamps = [];
@@ -488,7 +517,7 @@
     const closeSidebarBtn = document.getElementById('closeSidebar');
     const newChatBtn = document.getElementById('newChatBtn');
     const chatsList = document.getElementById('chatsList');
-    
+
     let loading = false;
 
     function setCookie(name, value, days = 365) {
@@ -511,7 +540,7 @@
     function loadChats() {
       const savedChats = getCookie('fhome_chats');
       const savedCurrentId = getCookie('fhome_current_chat');
-      
+
       if (savedChats) {
         try {
           chats = JSON.parse(savedChats);
@@ -555,11 +584,9 @@
       currentChatId = chatId;
       const chat = chats[chatId];
       clearMessages();
-      
       chat.messages.forEach(msg => {
         addMessage(msg.role, msg.text, false);
       });
-      
       setCookie('fhome_current_chat', currentChatId);
       renderChatsList();
     }
@@ -567,7 +594,6 @@
     function deleteChat(chatId) {
       if (confirm('Delete this chat?')) {
         delete chats[chatId];
-        
         if (currentChatId === chatId) {
           const chatIds = Object.keys(chats);
           if (chatIds.length > 0) {
@@ -576,7 +602,6 @@
             createNewChat();
           }
         }
-        
         saveChats();
         renderChatsList();
       }
@@ -584,18 +609,18 @@
 
     function renderChatsList() {
       chatsList.innerHTML = '';
-      const sortedChats = Object.values(chats).sort((a, b) => 
+      const sortedChats = Object.values(chats).sort((a, b) =>
         new Date(b.createdAt) - new Date(a.createdAt)
       );
 
       sortedChats.forEach(chat => {
         const chatItem = document.createElement('div');
         chatItem.className = 'chat-item' + (chat.id === currentChatId ? ' active' : '');
-        
-        const preview = chat.messages.length > 1 ? 
-          chat.messages[1].text.substring(0, 50) : 
+
+        const preview = chat.messages.length > 1 ?
+          chat.messages[1].text.substring(0, 50) :
           'New chat';
-        
+
         const date = new Date(chat.createdAt).toLocaleDateString('ru-RU', {
           day: '2-digit',
           month: '2-digit'
@@ -605,20 +630,23 @@
           <div class="chat-item-header">
             <div class="chat-item-title">${chat.title}</div>
             <button class="delete-btn" onclick="deleteChat('${chat.id}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
             </button>
           </div>
           <div class="chat-item-date">${date}</div>
           <div class="chat-item-preview">${preview}</div>
         `;
-        
+
         chatItem.onclick = (e) => {
           if (!e.target.closest('.delete-btn')) {
             loadChat(chat.id);
             closeSidebar();
           }
         };
-        
+
         chatsList.appendChild(chatItem);
       });
     }
@@ -644,19 +672,19 @@
     function checkRateLimit() {
       const now = Date.now();
       requestTimestamps = requestTimestamps.filter(timestamp => now - timestamp < RATE_WINDOW);
-      
+
       if (requestTimestamps.length >= RATE_LIMIT) {
         const oldestRequest = requestTimestamps[0];
         const timeToWait = RATE_WINDOW - (now - oldestRequest);
-        
+
         rateLimitNotice.classList.add('show');
         setTimeout(() => {
           rateLimitNotice.classList.remove('show');
         }, timeToWait);
-        
+
         return false;
       }
-      
+
       requestTimestamps.push(now);
       return true;
     }
@@ -672,11 +700,11 @@
     function addMessage(role, text, save = true) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${role}`;
-      
+
       const bubble = document.createElement('div');
       bubble.className = 'message-bubble';
       bubble.textContent = text;
-      
+
       messageDiv.appendChild(bubble);
       messagesDiv.appendChild(messageDiv);
       scrollToBottom();
@@ -687,7 +715,7 @@
         if (role === 'user' && chats[currentChatId].messages.filter(m => m.role === 'user').length === 1) {
           chats[currentChatId].title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
         }
-        
+
         saveChats();
         renderChatsList();
       }
@@ -697,15 +725,17 @@
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'loading';
       loadingDiv.id = 'loading-indicator';
-      
+
       const bubble = document.createElement('div');
       bubble.className = 'loading-bubble';
-      
+
       bubble.innerHTML = `
-        <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+        </svg>
         <span class="loading-text">I'm looking for information...</span>
       `;
-      
+
       loadingDiv.appendChild(bubble);
       messagesDiv.appendChild(loadingDiv);
       scrollToBottom();
@@ -725,6 +755,7 @@
           headers: {
             'Content-Type': 'application/json',
           },
+
           body: JSON.stringify({
             contents: [{
               parts: [{
@@ -763,11 +794,11 @@ Respond naturally in the same language as the user's message.`
         }
 
         const data = await response.json();
-        
+
         if (data.candidates && data.candidates[0] && data.candidates[0].content) {
           return data.candidates[0].content.parts[0].text;
         }
-        
+
         return 'Sorry, I could not generate a response. Please try again.';
 
       } catch (error) {
@@ -786,17 +817,17 @@ Respond naturally in the same language as the user's message.`
 
       inputField.value = '';
       addMessage('user', userMessage);
-      
+
       loading = true;
       inputField.disabled = true;
       sendBtn.disabled = true;
       showLoading();
 
       const botReply = await sendToGemini(userMessage);
-      
+
       hideLoading();
       addMessage('bot', botReply);
-      
+
       loading = false;
       inputField.disabled = false;
       sendBtn.disabled = false;
