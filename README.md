@@ -203,14 +203,6 @@ const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/another
 
 ---
 
-## 🤝 Contributing
-
-Pull requests are welcome — feel free to add features, fix UI quirks, improve animations, or expand documentation.
-
-For large changes, open an issue first.
-
----
-
 ## 🏛️ License – Apache License 2.0
 
 This project is licensed under the **Apache License, Version 2.0**.
@@ -229,4 +221,4 @@ Full license is available in the `LICENSE` file.
 
 FHome AI® was built to teach — not to replace industrial AI tools — and shows how surprisingly small and understandable an AI chat interface can be.
 
-If you use or modify it, just keep the attribution lines (as required by the Apache 2.0 license) and enjoy building cool things 🚀
+If you use or modify it, just keep the attribution lines (as required by the Apache 2.0 license) and enjoy building cool things 🚀 (Latest stable version: 901.latest)
