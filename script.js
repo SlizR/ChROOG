@@ -391,3 +391,15 @@ document.addEventListener('click', function(e){
         }
     }
 });
+
+function selectChat(chatId) {
+    currentChatId = chatId;
+    renderChats();
+    renderMessages();
+    
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
