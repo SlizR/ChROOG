@@ -130,11 +130,11 @@ let genAI = null;
 let chat = null;
 let chatHistory = [];
 
-const SPECIAL = {
-    "who are you": "My name is **FHome AI**, your personal assistant!",
+const SPECIAL_RESPONSES = {
+    "who are you": "My name is **FHome AI**, your personal education assistant!",
     "what is your name": "I'm **FHome AI**, always here to help!",
     "creator": "My creator is **Sliz®**.",
-    "who created you": "I was created by **Sliz®**, the legend."
+    "who created you": "I was created by **Sliz®**."
 };
 
 function displayMessage(text, sender) {
@@ -147,7 +147,7 @@ function displayMessage(text, sender) {
 
 function showTyping() { typingIndicator.classList.add("visible"); }
 function hideTyping() { typingIndicator.classList.remove("visible"); }
-function enableInput(v) { userInput.disabled = !v; sendBtn.disabled = !v; }
+function enableInput(flag) { userInput.disabled = !flag; sendBtn.disabled = !flag; }
 
 async function handleSend() {
     const text = userInput.value.trim();
@@ -156,28 +156,42 @@ async function handleSend() {
     displayMessage(text, "user");
     userInput.value = "";
 
-    chatHistory.push({ role: "user", parts: [text] });
-
-    enableInput(false);
-    showTyping();
-
     const lower = text.toLowerCase();
-    for (const key in SPECIAL) {
+    for (const key in SPECIAL_RESPONSES) {
         if (lower.includes(key)) {
-            const reply = SPECIAL[key];
+            const reply = SPECIAL_RESPONSES[key];
             displayMessage(reply, "ai");
-            chatHistory.push({ role: "model", parts: [reply] });
-            hideTyping(); enableInput(true);
+
+            chatHistory.push({
+                role: "assistant",
+                content: [{ type: "text", text: reply }]
+            });
+
             return;
         }
     }
 
+    chatHistory.push({
+        role: "user",
+        content: [{ type: "text", text }]
+    });
+
+    enableInput(false);
+    showTyping();
+
     try {
-        const result = await chat.sendMessage(text);
-        const reply = result.response.text();
+        const result = await chat.sendMessage({
+            content: [{ type: "text", text }]
+        });
+
+        const reply = result.response[0].content[0].text;
 
         displayMessage(reply, "ai");
-        chatHistory.push({ role: "model", parts: [reply] });
+
+        chatHistory.push({
+            role: "assistant",
+            content: [{ type: "text", text: reply }]
+        });
 
     } catch (err) {
         console.error(err);
