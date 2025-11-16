@@ -3,105 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FHome AI - AI for education</title>
+    <title>FHome AI - Smart Assistant</title>
     <script src="https://unpkg.com/@google/genai@0.14.0/dist/client-node.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #1a1a2e;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: stretch;
             min-height: 100vh;
             margin: 0;
+            padding: 0;
         }
         .chat-container {
             width: 100%;
-            max-width: 600px;
-            height: 90vh;
-            background-color: #ffffff;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
+            max-width: 100%;
+            height: 100vh;
+            background-color: #2a2a4a;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border-radius: 0;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            transition: background-color 0.5s;
         }
         .chat-header {
-            background-color: #3f51b5;
+            background-color: #5d3f6a;
             color: white;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            font-size: 1.5em;
-            font-weight: 600;
+            font-size: 1.8em;
+            font-weight: 700;
+            border-bottom: 3px solid #7c4dff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
         .chat-messages {
             flex-grow: 1;
-            padding: 20px;
+            padding: 30px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
+            background-color: #2a2a4a;
         }
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #7c4dff;
+            border-radius: 10px;
+        }
+
         .message {
-            max-width: 85%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            line-height: 1.4;
+            max-width: 75%;
+            padding: 15px 20px;
+            border-radius: 25px;
+            line-height: 1.6;
             word-wrap: break-word;
+            font-size: 1.1em;
+            color: #e0e0e0;
+            animation: fadeIn 0.3s ease-out;
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .user-message {
             align-self: flex-end;
-            background-color: #c5cae9;
-            color: #333;
+            background-color: #7c4dff;
             border-bottom-right-radius: 5px;
+            color: white;
         }
         .ai-message {
             align-self: flex-start;
-            background-color: #e8f5e9;
-            color: #333;
+            background-color: #4a4a6e;
             border-bottom-left-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+
         .chat-input-area {
             display: flex;
-            padding: 15px;
-            border-top: 1px solid #eee;
-            background-color: #fff;
+            padding: 20px;
+            border-top: 1px solid #3c3c5c;
+            background-color: #353555;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
         }
         #userInput {
             flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 25px;
-            font-size: 1em;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
             outline: none;
-            transition: border-color 0.3s;
+            background-color: #4a4a6e;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        #userInput::placeholder {
+            color: #b0b0d0;
         }
         #userInput:focus {
-            border-color: #3f51b5;
+            background-color: #5d5d85;
         }
         #sendBtn {
-            background-color: #3f51b5;
+            background-color: #7c4dff;
             color: white;
             border: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-            margin-left: 10px;
+            border-radius: 30px;
+            padding: 10px 25px;
+            margin-left: 15px;
             cursor: pointer;
+            font-size: 1.1em;
             transition: background-color 0.3s, transform 0.1s;
         }
         #sendBtn:hover {
-            background-color: #303f9f;
+            background-color: #6a3abf;
         }
         #sendBtn:active {
             transform: scale(0.98);
         }
         .typing-indicator {
             align-self: flex-start;
-            padding: 10px 15px;
+            padding: 10px 20px;
             font-style: italic;
-            color: #888;
-            opacity: 0; 
+            color: #b0b0d0;
+            opacity: 0;
             transition: opacity 0.3s;
+            font-size: 0.9em;
         }
         .typing-indicator.visible {
             opacity: 1;
@@ -116,7 +149,7 @@
         <div class="chat-messages" id="chatMessages">
             </div>
         <div class="typing-indicator" id="typingIndicator">
-            FHome AI writing...
+            FHome AI is thinking...
         </div>
         <div class="chat-input-area">
             <input type="text" id="userInput" placeholder="Ask FHome AI anything..." autofocus>
@@ -125,7 +158,10 @@
     </div>
 
     <script>
-        const API_KEY = "AIzaSyCX1OUsAj44jYd0BXBQYqatIBJcGpVSyh0"; // This API key was made for AI so that the whole world could use it. If they use it for their own bad deeds, the server will be turned on.
+        // ==========================================================
+        // !!! The Gemini API key is only used to search for requests over the internet. There is no way to use the internet only to respond. !!!
+        // ==========================================================
+        const API_KEY = "AIzaSyCX1OUsAj44jYd0BXBQYqatIBJcGpVSyh0";
         
         const chatMessages = document.getElementById('chatMessages');
         const userInput = document.getElementById('userInput');
@@ -136,11 +172,13 @@
         let chatHistory = [];
         
         const SPECIAL_RESPONSES = {
-            "Name": "My name is **FHome AI**. I'm your personal assistant, ready to help you find information! I was created for educators and people!"
-            "Who are you": "My name is **FHome AI**. I'm your personal assistant, ready to help you find information! I was created for educators and people!"
-            "Creator": "My creator is **Sliz®**. He developed me to make your life easier and smarter."
-            "Who created you": "My creator is **Sliz®**. He developed me to make your life easier and smarter."
+            "who are you": "My name is **FHome AI**. I'm your personal assistant, designed for educators and people, ready to help you find information and manage your smart home!",
+            "what is your name": "My name is **FHome AI**. I'm your personal assistant, designed for educators and people!",
+            "creator": "My creator is **Sliz®**. He designed me to make your life smarter and easier.",
+            "who created you": "My creator is **Sliz®**. He designed me to make your life smarter and easier.",
         };
+
+        // --- Chat Persistence (Local Storage) ---
 
         function saveChatHistory(history) {
             localStorage.setItem('fhome_chat_history', JSON.stringify(history));
@@ -158,7 +196,7 @@
                 });
                 
                 if (history.length > 2) {
-                    displayMessage("Welcome back! Let's continue!", "model");
+                    displayMessage("Welcome back! Let's continue our conversation.", "model");
                 }
 
                 return history;
@@ -227,17 +265,14 @@
                     aiResponseText = response.text;
                 } catch (error) {
                     console.error("API Error:", error);
-                    aiResponseText = "Sorry, there was an error connecting to the API. Please try again.";
+                    aiResponseText = "Sorry, I ran into an issue connecting to the API. Please try again.";
                 }
             }
 
             displayMessage(aiResponseText, 'model');
-            
-            if (specialFound) {
-                 chatHistory.push({ role: "model", parts: [{ text: aiResponseText.replace(/<\/?b>/g, '') }] });
-            } else {
-                 chatHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
-            }
+
+            const historyText = specialFound ? aiResponseText.replace(/<\/?b>/g, '') : aiResponseText;
+            chatHistory.push({ role: "model", parts: [{ text: historyText }] });
 
             saveChatHistory(chatHistory);
 
@@ -251,7 +286,7 @@
 
                 chatHistory = loadChatHistory();
                 
-                const systemInstruction = "You are FHome AI, a friendly and intelligent assistant designed to help with information and your smart home. Keep your answers brief and helpful. Always use the same language as the user.";
+                const systemInstruction = "You are FHome AI, a friendly and intelligent assistant designed to help with information, education, and smart home topics. Keep your answers clear, concise, and helpful. Always respond in the language the user is speaking.";
 
                 chat = client.chats.create({
                     model: 'gemini-2.5-flash',
@@ -262,14 +297,14 @@
                 });
 
                 if (chatHistory.length === 0) {
-                    displayMessage("Hi! I'm FHome AI, your smart assistant for education. How can I help you today?", "model");
+                    displayMessage("Hello! I'm FHome AI, your smart assistant. Ask me anything.'", "model");
                 }
                 
                 sendBtn.disabled = false;
                 
             } catch (e) {
                 console.error("API initialization error:", e);
-                displayMessage(`Error: Failed to initialize the API. Check your internet connection.`, "model");
+                displayMessage(`Error: Failed to initialize the API. Check your internet.`, "model");
             }
         }
 
