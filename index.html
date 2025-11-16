@@ -49,6 +49,13 @@
       height: 24px;
     }
 
+    .header-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
     .header-text h1 {
       font-size: 1.25rem;
       font-weight: bold;
@@ -58,6 +65,179 @@
     .header-text p {
       font-size: 0.875rem;
       color: #6b7280;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+      color: #6b7280;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 320px;
+      height: 100vh;
+      background: white;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+      transition: right 0.3s;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar.open {
+      right: 0;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.125rem;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .chat-item {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      border: 1px solid #e5e7eb;
+      transition: background 0.2s;
+    }
+
+    .chat-item:hover {
+      background: #f9fafb;
+    }
+
+    .chat-item.active {
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+
+    .chat-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .chat-item-title {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 0.875rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chat-item-date {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .chat-item-preview {
+      font-size: 0.75rem;
+      color: #6b7280;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .delete-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .chat-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .delete-btn:hover {
+      background: #fee2e2;
+    }
+
+    .delete-btn svg {
+      width: 16px;
+      height: 16px;
+      color: #ef4444;
+    }
+
+    .new-chat-btn {
+      background: linear-gradient(to right, #3b82f6, #4f46e5);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .new-chat-btn:hover {
+      background: linear-gradient(to right, #2563eb, #4338ca);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 999;
+    }
+
+    .overlay.show {
+      display: block;
     }
 
     .messages {
@@ -129,6 +309,20 @@
 
     .loading-text {
       color: #4b5563;
+    }
+
+    .rate-limit-notice {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      color: #92400e;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      margin: 0 1rem 1rem 1rem;
+      display: none;
+    }
+
+    .rate-limit-notice.show {
+      display: block;
     }
 
     .input-container {
@@ -203,19 +397,52 @@
       .message-bubble {
         max-width: 85%;
       }
+      .sidebar {
+        width: 100%;
+        right: -100%;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>History chats</h2>
+      <button class="icon-btn" id="closeSidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <button class="new-chat-btn" id="newChatBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        New chat
+      </button>
+      <div id="chatsList"></div>
+    </div>
+  </div>
+
   <div class="container">
     <div class="header">
       <div class="header-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
       </div>
-      <div class="header-text">
-        <h1>FHome AI</h1>
-        <p>FHome AI uses a search and response system using the Internet without using a database or other AI</p>
+      <div class="header-content">
+        <div class="header-text">
+          <h1>FHome AI</h1>
+          <p>FHome AI uses a search and response system using the Internet without using a database or other AI</p>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" id="openSidebar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+        </div>
       </div>
+    </div>
+
+    <div class="rate-limit-notice" id="rateLimitNotice">
+      You've reached the request limit 60/minute. Please wait to continue.
     </div>
 
     <div class="messages" id="messages">
@@ -241,16 +468,208 @@
   </div>
 
   <script>
+    const GEMINI_API_KEY = 'AIzaSyCX1OUsAj44jYd0BXBQYqatIBJcGpVSyh0'; // This is internet API for search (Use Gemini only for search the internet!) This API is free you can use it!
+    const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+    
+    const RATE_LIMIT = 60;
+    const RATE_WINDOW = 60000;
+    let requestTimestamps = [];
+
+    let currentChatId = null;
+    let chats = {};
+
     const messagesDiv = document.getElementById('messages');
     const inputField = document.getElementById('input');
     const sendBtn = document.getElementById('sendBtn');
+    const rateLimitNotice = document.getElementById('rateLimitNotice');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const openSidebarBtn = document.getElementById('openSidebar');
+    const closeSidebarBtn = document.getElementById('closeSidebar');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const chatsList = document.getElementById('chatsList');
+    
     let loading = false;
+
+    function setCookie(name, value, days = 365) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${date.toUTCString()};path=/`;
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+      return null;
+    }
+
+    function loadChats() {
+      const savedChats = getCookie('fhome_chats');
+      const savedCurrentId = getCookie('fhome_current_chat');
+      
+      if (savedChats) {
+        try {
+          chats = JSON.parse(savedChats);
+          if (savedCurrentId && chats[savedCurrentId]) {
+            currentChatId = savedCurrentId;
+            loadChat(currentChatId);
+          } else {
+            createNewChat();
+          }
+        } catch (e) {
+          console.error('Error loading chats:', e);
+          createNewChat();
+        }
+      } else {
+        createNewChat();
+      }
+      renderChatsList();
+    }
+
+    function saveChats() {
+      setCookie('fhome_chats', JSON.stringify(chats));
+      setCookie('fhome_current_chat', currentChatId);
+    }
+
+    function createNewChat() {
+      const chatId = 'chat_' + Date.now();
+      chats[chatId] = {
+        id: chatId,
+        title: 'New chat',
+        messages: [],
+        createdAt: new Date().toISOString()
+      };
+      currentChatId = chatId;
+      clearMessages();
+      addMessage('bot', "Hi! I'm a multilingual AI bot, FHome AI. Write me anything in any language, and I'll search the internet for the correct answer!");
+      saveChats();
+      renderChatsList();
+    }
+
+    function loadChat(chatId) {
+      currentChatId = chatId;
+      const chat = chats[chatId];
+      clearMessages();
+      
+      chat.messages.forEach(msg => {
+        addMessage(msg.role, msg.text, false);
+      });
+      
+      setCookie('fhome_current_chat', currentChatId);
+      renderChatsList();
+    }
+
+    function deleteChat(chatId) {
+      if (confirm('Delete this chat?')) {
+        delete chats[chatId];
+        
+        if (currentChatId === chatId) {
+          const chatIds = Object.keys(chats);
+          if (chatIds.length > 0) {
+            loadChat(chatIds[0]);
+          } else {
+            createNewChat();
+          }
+        }
+        
+        saveChats();
+        renderChatsList();
+      }
+    }
+
+    function renderChatsList() {
+      chatsList.innerHTML = '';
+      const sortedChats = Object.values(chats).sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      sortedChats.forEach(chat => {
+        const chatItem = document.createElement('div');
+        chatItem.className = 'chat-item' + (chat.id === currentChatId ? ' active' : '');
+        
+        const preview = chat.messages.length > 1 ? 
+          chat.messages[1].text.substring(0, 50) : 
+          'New chat';
+        
+        const date = new Date(chat.createdAt).toLocaleDateString('ru-RU', {
+          day: '2-digit',
+          month: '2-digit'
+        });
+
+        chatItem.innerHTML = `
+          <div class="chat-item-header">
+            <div class="chat-item-title">${chat.title}</div>
+            <button class="delete-btn" onclick="deleteChat('${chat.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+          <div class="chat-item-date">${date}</div>
+          <div class="chat-item-preview">${preview}</div>
+        `;
+        
+        chatItem.onclick = (e) => {
+          if (!e.target.closest('.delete-btn')) {
+            loadChat(chat.id);
+            closeSidebar();
+          }
+        };
+        
+        chatsList.appendChild(chatItem);
+      });
+    }
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    }
+
+    openSidebarBtn.addEventListener('click', openSidebar);
+    closeSidebarBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+    newChatBtn.addEventListener('click', () => {
+      createNewChat();
+      closeSidebar();
+    });
+
+    function checkRateLimit() {
+      const now = Date.now();
+      requestTimestamps = requestTimestamps.filter(timestamp => now - timestamp < RATE_WINDOW);
+      
+      if (requestTimestamps.length >= RATE_LIMIT) {
+        const oldestRequest = requestTimestamps[0];
+        const timeToWait = RATE_WINDOW - (now - oldestRequest);
+        
+        rateLimitNotice.classList.add('show');
+        setTimeout(() => {
+          rateLimitNotice.classList.remove('show');
+        }, timeToWait);
+        
+        return false;
+      }
+      
+      requestTimestamps.push(now);
+      return true;
+    }
 
     function scrollToBottom() {
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    function addMessage(role, text) {
+    function clearMessages() {
+      messagesDiv.innerHTML = '';
+    }
+
+    function addMessage(role, text, save = true) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${role}`;
       
@@ -261,6 +680,17 @@
       messageDiv.appendChild(bubble);
       messagesDiv.appendChild(messageDiv);
       scrollToBottom();
+
+      if (save && currentChatId) {
+        chats[currentChatId].messages.push({ role, text });
+
+        if (role === 'user' && chats[currentChatId].messages.filter(m => m.role === 'user').length === 1) {
+          chats[currentChatId].title = text.substring(0, 30) + (text.length > 30 ? '...' : '');
+        }
+        
+        saveChats();
+        renderChatsList();
+      }
     }
 
     function showLoading() {
@@ -288,75 +718,71 @@
       }
     }
 
-    async function detectLanguageAndSearch(userMessage) {
+    async function sendToGemini(userMessage) {
       try {
-        const promptText = 'The user wrote: "' + userMessage + '". \n\n' +
-          'IMPORTANT: You are FHome AI, a multilingual AI assistant.\n\n' +
-          'Your personality:\n' +
-          '- Name: FHome AI\n' +
-          '- Creator: Sliz®\n' +
-          '- You can communicate in all languages of the world\n' +
-          '- You use web search for accurate answers\n' +
-          '- You are a friendly and helpful assistant\n\n' +
-          'If asked:\n' +
-          '- What is your name - answer "My name is FHome AI" (in the language of the question)\n' +
-          '- Who your creator - answer "My creator: Sliz®" (in the language of the question)\n' +
-          '- Who are you - explain that you are a multilingual AI assistant\n' +
-          '- What can you do - explain your capabilities\n\n' +
-          '- You dont need to write your name every time, only if youre asked about yourself and your name.\n\n' +
-          'Your task:\n' +
-          '1. Identify the language of the message\n' +
-          '2. Use web_search to find information on how to respond to similar phrases in that language\n' +
-          '3. Based on the information found, generate a natural, appropriate response in the same language\n\n' +
-          'If it is a greeting - find typical responses to greetings in that language. If it is a question, find information on the topic.\n' +
-          'If it is a simple phrase, find context and a suitable answer.\n\n' +
-          'Answer ONLY with the answer you generated, without explanation.';
-
-        const searchResponse = await fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST",
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
-            max_tokens: 1000,
-            messages: [
-              { 
-                role: "user", 
-                content: promptText
-              }
-            ],
-            tools: [
-              {
-                "type": "web_search_20250305",
-                "name": "web_search"
-              }
-            ]
+            contents: [{
+              parts: [{
+                text: `You are FHome AI, a multilingual AI assistant created by Sliz®.
+
+Your personality:
+- Name: FHome AI
+- Creator: Sliz®
+- You can communicate in all languages of the world
+- You are a friendly and helpful assistant
+
+If asked:
+- What is your name - answer "My name is FHome AI" (in the language of the question)
+- Who is your creator - answer "My creator: Sliz®" (in the language of the question)
+- Who are you - explain that you are a multilingual AI assistant
+- What can you do - explain your capabilities
+
+You don't need to write your name every time, only if you're asked about yourself.
+
+User wrote: "${userMessage}"
+
+Respond naturally in the same language as the user's message.`
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.9,
+              topK: 1,
+              topP: 1,
+              maxOutputTokens: 2048,
+            }
           })
         });
 
-        const data = await searchResponse.json();
-        
-        let botResponse = '';
-        if (data.content) {
-          for (const block of data.content) {
-            if (block.type === 'text') {
-              botResponse += block.text;
-            }
-          }
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
         }
 
-        return botResponse.trim() || 'Sorry, I could not find a suitable answer, please try again (Code: 1-A)';
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+          return data.candidates[0].content.parts[0].text;
+        }
+        
+        return 'Sorry, I could not generate a response. Please try again.';
 
       } catch (error) {
         console.error('Error:', error);
-        return 'An error occurred while searching for information. Please try again!';
+        return 'An error occurred while processing your request. Please try again!';
       }
     }
 
     async function handleSend() {
       const userMessage = inputField.value.trim();
       if (!userMessage || loading) return;
+
+      if (!checkRateLimit()) {
+        return;
+      }
 
       inputField.value = '';
       addMessage('user', userMessage);
@@ -366,7 +792,7 @@
       sendBtn.disabled = true;
       showLoading();
 
-      const botReply = await detectLanguageAndSearch(userMessage);
+      const botReply = await sendToGemini(userMessage);
       
       hideLoading();
       addMessage('bot', botReply);
@@ -386,6 +812,7 @@
       }
     });
 
+    loadChats();
     inputField.focus();
   </script>
 </body>
