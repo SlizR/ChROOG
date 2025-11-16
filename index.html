@@ -184,7 +184,7 @@ async function handleSend() {
             content: [{ type: "text", text }]
         });
 
-        const reply = result.response[0].content[0].text;
+        const reply = result.response.content[0].text;
 
         displayMessage(reply, "ai");
 
@@ -195,7 +195,7 @@ async function handleSend() {
 
     } catch (err) {
         console.error(err);
-        displayMessage("Error: API request failed.", "ai");
+        displayMessage("Error: Gemini API request failed.", "ai");
     }
 
     hideTyping();
