@@ -24,16 +24,74 @@ function escapeHTML(str) {
     });
 }
 
+function copyCode(button) {
+    const codeBlock = button.closest('.code-block-container').querySelector('pre code');
+    if (!codeBlock) return;
+
+    const textToCopy = codeBlock.innerText.trim();
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 1500);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 1500);
+    });
+}
+
 function parseMarkdownSafe(text) {
     if (!text) return "";
 
-    text = escapeHTML(text);
+    const codeBlockRegex = /```(\w*)\n([\s\S]+?)```/g;
+    let parts = text.split(codeBlockRegex);
+    let html = '';
 
-    return text
-        .replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/gs, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
-        .replace(/\n/g, '<br>');
+    for (let i = 0; i < parts.length; i++) {
+        if (i % 3 === 1) {
+            continue;
+        } else if (i % 3 === 2) {
+            const language = parts[i - 1].trim().toLowerCase() || 'text';
+            const codeContent = parts[i];
+            
+            const cleanCode = codeContent.replace(/<br>/g, '\n');
+
+            html += `
+                <div class="code-block-container">
+                    <div class="code-header">
+                        <span class="code-language">${language}</span>
+                        <button class="copy-btn" onclick="window.copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code class="language-${language}">${escapeHTML(cleanCode)}</code></pre>
+                </div>
+            `;
+        } else {
+            let content = parts[i];
+            
+            content = escapeHTML(content);
+
+            html += content
+                .replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/gs, '<em>$1</em>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+        }
+    }
+
+    return html;
 }
 
 function loadFromCookie() {
@@ -206,31 +264,97 @@ function renderMessages() {
         <div class="message ${msg.role}">
             <img src="${msg.role === 'user' ? settings.userAvatar : 'icon.png'}" 
                  class="message-avatar" 
-                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%232ea67d\'/%3E%3Ctext x=\'50\' y=\'50\' font-size=\'40\' text-anchor=\'middle\' dy=\'.3em\' fill=\'white\' font-family=\'Arial\'%3E${msg.role === 'user' ? 'U' : 'F'}%3C/text%3E%3C/svg%3E'">
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%232ea67d\'/%3E%3Ctext x=\'50\' y=\'50\' font-size=\'40\' text-anchor=\'middle\' dy=\'.3em\' fill=\'white\' font-family=\'Arial\'%3EF%3C/text%3E%3C/svg%3E'">
             <div class="message-content">${parseMarkdownSafe(msg.content)}</div>
         </div>
     `).join('');
     container.scrollTop = container.scrollHeight;
 }
 
+const MODES = ['mind', 'dev', 'teacher', 'short'];
+let activeMode = null; 
+let tooltipTimeout;
+
+function syncModeUI() {
+    const input = document.getElementById("messageInput");
+    const modeMatch = input.value.trim().match(/^\/(\w+)\b/);
+    const currentMode = modeMatch ? modeMatch[1] : null;
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        const btnMode = btn.dataset.mode;
+        btn.classList.toggle('active', btnMode === currentMode);
+    });
+}
+
+function setMode(mode) {
+    const input = document.getElementById("messageInput");
+    const modeMatch = input.value.trim().match(/^\/(\w+)\b/);
+    const currentModeName = modeMatch ? modeMatch[1] : null;
+
+    let newMode = null;
+    let cleanText = input.value.replace(/^\/\w+\s*/, "").trim(); 
+
+    if (currentModeName === mode) {
+        newMode = null;
+    } else {
+        newMode = mode;
+    }
+
+    if (newMode) {
+        input.value = `/${newMode} ${cleanText}`.trim();
+    } else {
+        input.value = cleanText.trim();
+    }
+
+    input.focus();
+    input.selectionStart = input.selectionEnd = input.value.length;
+    
+    syncModeUI();
+}
+
+function prepareMessageForAI() {
+    let message = document.getElementById("messageInput").value.trim();
+
+    const modeMatch = message.match(/^\/(\w+)\b\s*/);
+    let modePrefix = '';
+
+    if (modeMatch && MODES.includes(modeMatch[1])) {
+        modePrefix = modeMatch[0];
+        var cleanUserText = message.substring(modePrefix.length).trim();
+    } else {
+        cleanUserText = message;
+    }
+    
+    const uiMessage = cleanUserText || message;
+    
+    const aiMessage = message; 
+
+    return { uiMessage, aiMessage };
+}
+
 async function sendMessage() {
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
-    const message = input.value.trim();
     
-    if (!message) return;
+    const prepared = prepareMessageForAI();
+    const uiMessage = prepared.uiMessage;
+    const aiMessage = prepared.aiMessage;
+    
+    if (!aiMessage.trim()) return;
+
     if (!currentChatId) {
         createNewChat();
     }
     const chat = chats.find(c => c.id === currentChatId);
     
-    chat.messages.push({ role: 'user', content: message });
+    chat.messages.push({ role: 'user', content: uiMessage });
     
     if (chat.messages.length === 1) {
-        chat.title = message.substring(0, 30) + (message.length > 30 ? '...' : '');
+        chat.title = uiMessage.substring(0, 30) + (uiMessage.length > 30 ? '...' : '');
     }
     
     input.value = '';
+    syncModeUI();
     renderChats();
     renderMessages();
     const container = document.getElementById('messagesContainer');
@@ -256,7 +380,7 @@ async function sendMessage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                messages: chat.messages,
+                messages: [...chat.messages, { role: 'user', content: aiMessage }],
                 settings: settings
             })
         });
@@ -265,8 +389,8 @@ async function sendMessage() {
         typingIndicator.remove();
 
         if (data.candidates && data.candidates[0]) {
-            const aiMessage = data.candidates[0].content.parts[0].text;
-            chat.messages.push({ role: 'ai', content: aiMessage });
+            const aiMessageContent = data.candidates[0].content.parts[0].text;
+            chat.messages.push({ role: 'ai', content: aiMessageContent });
         } else if (data.error) {
             let errorMessage = `AI Response Error: ${data.error.message || JSON.stringify(data)}`;
             chat.messages.push({ role: 'ai', content: `Sorry, I encountered an error processing your request. Details: ${errorMessage}` });
@@ -286,8 +410,17 @@ async function sendMessage() {
 }
 
 function handleKeyPress(event) {
+    const input = document.getElementById('messageInput');
     if (event.key === 'Enter') {
-        sendMessage();
+        if (event.shiftKey) {
+            const cursorPos = input.selectionStart;
+            const text = input.value;
+            input.value = text.slice(0, cursorPos) + "\n" + text.slice(cursorPos);
+            input.selectionStart = input.selectionEnd = cursorPos + 1;
+        } else {
+            event.preventDefault();
+            sendMessage();
+        }
     }
 }
 
@@ -312,7 +445,89 @@ document.addEventListener('click', function(e){
             document.body.style.overflow = '';
         }
     }
+    if (document.getElementById('tooltip') && document.getElementById('tooltip').style.display === 'block') {
+        hideTooltip();
+    }
 });
+
+function getTooltipText(mode) {
+    switch (mode) {
+        case "mind": return "Deep thinking mode. For complex and detailed analysis.";
+        case "dev": return "Developer-only coding mode. Focuses on code and technical solutions.";
+        case "teacher": return "Explain concepts simply. Uses clear language and analogies.";
+        case "short": return "Short minimal answers. Concise and direct replies.";
+        default: return "";
+    }
+}
+
+function showTooltip(element, text) {
+    const tooltip = document.getElementById('tooltip');
+    if (!tooltip) return;
+
+    tooltip.textContent = text;
+    tooltip.style.display = 'block';
+
+    const rect = element.getBoundingClientRect();
+    const inputArea = element.closest('.input-area') || document.body;
+    const inputAreaRect = inputArea.getBoundingClientRect();
+    
+    const leftOffset = rect.left - inputAreaRect.left + rect.width / 2 - tooltip.offsetWidth / 2;
+    const topOffset = rect.top - inputAreaRect.top - tooltip.offsetHeight - 10;
+    
+    tooltip.style.left = `${leftOffset}px`;
+    tooltip.style.top = `${topOffset}px`;
+    
+    if (tooltip.offsetLeft + tooltip.offsetWidth > inputAreaRect.width - 10) {
+        tooltip.style.left = `${inputAreaRect.width - tooltip.offsetWidth - 10}px`; 
+    }
+    if (tooltip.offsetLeft < 10) {
+        tooltip.style.left = '10px'; 
+    }
+}
+
+function hideTooltip() {
+    const tooltip = document.getElementById('tooltip');
+    if (tooltip) {
+        tooltip.style.display = 'none';
+        clearTimeout(tooltipTimeout);
+    }
+}
+
+function setupMobileUI() {
+    const chatHeader = document.getElementById('chatHeader');
+    if (!chatHeader) return;
+
+    if (!chatHeader.querySelector('.chat-title-mobile')) {
+        const titleEl = document.createElement('div');
+        titleEl.className = 'chat-title-mobile';
+        titleEl.textContent = chatHeader.textContent || 'New Chat'; 
+        const toggleBtn = chatHeader.querySelector('.toggle-sidebar-btn');
+        chatHeader.innerHTML = '';
+        if (toggleBtn) chatHeader.appendChild(toggleBtn);
+        chatHeader.appendChild(titleEl);
+    }
+
+    if (!chatHeader.querySelector('.header-settings-btn')) {
+        const origSettings = document.querySelector('.settings-btn');
+        if (origSettings) {
+            const clone = origSettings.cloneNode(true);
+            clone.classList.remove('settings-btn');
+            clone.classList.add('header-settings-btn');
+            clone.onclick = function(e) {
+                e.stopPropagation();
+                openSettings();
+            };
+            chatHeader.appendChild(clone);
+        }
+    }
+}
+
+function refreshMobileHeaderTitle() {
+    const chatHeader = document.getElementById('chatHeader');
+    const titleEl = chatHeader ? chatHeader.querySelector('.chat-title-mobile') : null;
+    const chat = chats.find(c => c.id === currentChatId);
+    if (titleEl) titleEl.textContent = chat ? chat.title : 'New Chat';
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const radiusSlider = document.getElementById('radiusSlider');
@@ -346,160 +561,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chats.length === 0) {
         createNewChat();
     }
-});
 
-function setupMobileUI() {
-    const chatHeader = document.getElementById('chatHeader');
-    if (!chatHeader) return;
-
-    if (!chatHeader.querySelector('.chat-title-mobile')) {
-        const titleEl = document.createElement('div');
-        titleEl.className = 'chat-title-mobile';
-        titleEl.textContent = chatHeader.textContent || 'New Chat';
-        const toggleBtn = chatHeader.querySelector('.toggle-sidebar-btn');
-        chatHeader.innerHTML = '';
-        if (toggleBtn) chatHeader.appendChild(toggleBtn);
-        chatHeader.appendChild(titleEl);
-    }
-
-    if (!chatHeader.querySelector('.header-settings-btn')) {
-        const origSettings = document.querySelector('.settings-btn');
-        if (origSettings) {
-            const clone = origSettings.cloneNode(true);
-            clone.classList.remove('settings-btn');
-            clone.classList.add('header-settings-btn');
-            clone.onclick = function(e) {
-                e.stopPropagation();
-                openSettings();
-            };
-            chatHeader.appendChild(clone);
-        }
-    }
-
-    if (!document.querySelector('.fab-new-chat')) {
-        const fab = document.createElement('button');
-        fab.className = 'fab-new-chat';
-        fab.title = 'New Chat';
-        fab.innerHTML = '+'; // icon
-        fab.onclick = function(e) {
-            e.stopPropagation();
-            createNewChat();
-        };
-        document.body.appendChild(fab);
-    }
-}
-
-function refreshMobileHeaderTitle() {
-    const chatHeader = document.getElementById('chatHeader');
-    const titleEl = chatHeader ? chatHeader.querySelector('.chat-title-mobile') : null;
-    const chat = chats.find(c => c.id === currentChatId);
-    if (titleEl) titleEl.textContent = chat ? chat.title : 'New Chat';
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    setupMobileUI();
+    setupMobileUI(); 
     refreshMobileHeaderTitle();
-});
-
-const originalRenderMessages = renderMessages;
-renderMessages = function() {
-    originalRenderMessages();
-    refreshMobileHeaderTitle();
-};
-
-let activeMode = null;
-
-function setMode(mode) {
-    activeMode = mode;
+    
+    const messageInput = document.getElementById('messageInput');
+    if (messageInput) {
+        messageInput.addEventListener('input', syncModeUI);
+        messageInput.addEventListener('keydown', handleKeyPress); 
+    }
 
     document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.mode === mode);
-    });
-
-    const input = document.getElementById("messageInput");
-
-    if (mode) {
-        input.value = `/${mode} ` + input.value.replace(/^\/\w+\s*/, "");
-    } else {
-        input.value = input.value.replace(/^\/\w+\s*/, "");
-    }
-}
-
-function sanitizeUserMessage(msg) {
-    const modeMatch = msg.match(/^\/(mind|dev|teacher|short)\b/);
-
-    if (modeMatch) {
-        activeMode = modeMatch[1];
-    }
-
-    return msg.replace(/^\/(mind|dev|teacher|short)\b\s*/, "");
-}
-
-function prepareMessageForAI() {
-    let message = document.getElementById("messageInput").value.trim();
-
-    const cleanUserText = sanitizeUserMessage(message);
-
-    let messageForAI = activeMode ? `/${activeMode} ${cleanUserText}` : cleanUserText;
-
-    return { uiMessage: cleanUserText, aiMessage: messageForAI };
-}
-
-let tooltipTimeout;
-
-document.querySelectorAll('.mode-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', e => {
-        tooltipTimeout = setTimeout(() => {
-            showTooltip(btn, getTooltipText(btn.dataset.mode));
-        }, 1500);
-    });
-
-    btn.addEventListener('mouseleave', () => {
-        clearTimeout(tooltipTimeout);
-        hideTooltip();
-    });
-});
-
-function getTooltipText(mode) {
-    switch (mode) {
-        case "mind": return "Deep thinking mode";
-        case "dev": return "Developer-only coding mode";
-        case "teacher": return "Explain concepts simply";
-        case "short": return "Short minimal answers";
-    }
-}
-
-function handleKeyPress(event) {
-    const input = document.getElementById('messageInput');
-    if (event.key === 'Enter') {
-        if (event.shiftKey) {
-            const cursorPos = input.selectionStart;
-            const text = input.value;
-            input.value = text.slice(0, cursorPos) + "\n" + text.slice(cursorPos);
-            input.selectionStart = input.selectionEnd = cursorPos + 1;
-        } else {
-            event.preventDefault();
-            sendMessage();
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.addEventListener('mouseenter', e => {
-            tooltipTimeout = setTimeout(() => {
-                showTooltip(btn, getTooltipText(btn.dataset.mode));
-            }, 1500);
-        });
-        btn.addEventListener('mouseleave', () => {
-            clearTimeout(tooltipTimeout);
-            hideTooltip();
-        });
-
+        const mode = btn.dataset.mode;
+        
         btn.addEventListener('click', () => {
-            setMode(btn.dataset.mode);
+            setMode(mode); 
+            
+            if (window.innerWidth <= 768) {
+                hideTooltip();
+                showTooltip(btn, getTooltipText(mode));
+                tooltipTimeout = setTimeout(hideTooltip, 3000);
+            }
+        });
+
+        btn.addEventListener('mouseenter', e => {
+            if (window.innerWidth > 768) {
+                tooltipTimeout = setTimeout(() => {
+                    showTooltip(btn, getTooltipText(mode));
+                }, 1500); 
+            }
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            if (window.innerWidth > 768) {
+                clearTimeout(tooltipTimeout);
+                hideTooltip();
+            }
         });
     });
+    
+    syncModeUI();
 });
 
 window.selectChat = selectChat;
@@ -510,3 +611,4 @@ window.handleKeyPress = handleKeyPress;
 window.openSettings = openSettings;
 window.closeSettings = closeSettings;
 window.toggleSidebar = toggleSidebar;
+window.copyCode = copyCode;
