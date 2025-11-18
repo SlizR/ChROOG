@@ -484,6 +484,24 @@ function handleKeyPress(event) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', e => {
+            tooltipTimeout = setTimeout(() => {
+                showTooltip(btn, getTooltipText(btn.dataset.mode));
+            }, 1500);
+        });
+        btn.addEventListener('mouseleave', () => {
+            clearTimeout(tooltipTimeout);
+            hideTooltip();
+        });
+
+        btn.addEventListener('click', () => {
+            setMode(btn.dataset.mode);
+        });
+    });
+});
+
 window.selectChat = selectChat;
 window.deleteChat = deleteChat;
 window.renameChat = renameChat;
