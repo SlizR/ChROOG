@@ -661,6 +661,33 @@
     }
 }
 
+.mode-tooltip {
+    position: absolute;
+    padding: 6px 10px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s;
+}
+.mode-btn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.mode-btn.active {
+    background: #2ea67d;
+    box-shadow: 0 0 10px rgba(46,166,125,0.7);
+}
+
 /* ---------- MOBILE layout overrides ---------- */
 @media (max-width: 768px) {
     .container {
@@ -833,3 +860,4 @@
     .chat-header { padding: 10px 10px; }
     .fab-new-chat { right: 12px; bottom: 80px; width: 50px; height: 50px; font-size: 20px; }
 }
+
