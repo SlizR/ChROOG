@@ -407,6 +407,68 @@ renderMessages = function() {
     refreshMobileHeaderTitle();
 };
 
+let activeMode = null;
+
+function setMode(mode) {
+    activeMode = mode;
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+    });
+
+    const input = document.getElementById("messageInput");
+
+    if (mode) {
+        input.value = `/${mode} ` + input.value.replace(/^\/\w+\s*/, "");
+    } else {
+        input.value = input.value.replace(/^\/\w+\s*/, "");
+    }
+}
+
+function sanitizeUserMessage(msg) {
+    const modeMatch = msg.match(/^\/(mind|dev|teacher|short)\b/);
+
+    if (modeMatch) {
+        activeMode = modeMatch[1];
+    }
+
+    return msg.replace(/^\/(mind|dev|teacher|short)\b\s*/, "");
+}
+
+function prepareMessageForAI() {
+    let message = document.getElementById("messageInput").value.trim();
+
+    const cleanUserText = sanitizeUserMessage(message);
+
+    let messageForAI = activeMode ? `/${activeMode} ${cleanUserText}` : cleanUserText;
+
+    return { uiMessage: cleanUserText, aiMessage: messageForAI };
+}
+
+let tooltipTimeout;
+
+document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', e => {
+        tooltipTimeout = setTimeout(() => {
+            showTooltip(btn, getTooltipText(btn.dataset.mode));
+        }, 1500);
+    });
+
+    btn.addEventListener('mouseleave', () => {
+        clearTimeout(tooltipTimeout);
+        hideTooltip();
+    });
+});
+
+function getTooltipText(mode) {
+    switch (mode) {
+        case "mind": return "Deep thinking mode";
+        case "dev": return "Developer-only coding mode";
+        case "teacher": return "Explain concepts simply";
+        case "short": return "Short minimal answers";
+    }
+}
+
 window.selectChat = selectChat;
 window.deleteChat = deleteChat;
 window.renameChat = renameChat;
