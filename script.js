@@ -469,6 +469,21 @@ function getTooltipText(mode) {
     }
 }
 
+function handleKeyPress(event) {
+    const input = document.getElementById('messageInput');
+    if (event.key === 'Enter') {
+        if (event.shiftKey) {
+            const cursorPos = input.selectionStart;
+            const text = input.value;
+            input.value = text.slice(0, cursorPos) + "\n" + text.slice(cursorPos);
+            input.selectionStart = input.selectionEnd = cursorPos + 1;
+        } else {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+}
+
 window.selectChat = selectChat;
 window.deleteChat = deleteChat;
 window.renameChat = renameChat;
