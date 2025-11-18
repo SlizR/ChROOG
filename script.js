@@ -11,6 +11,16 @@ let settings = {
     userBio: ''
 };
 
+function parseMarkdownBold(text) {
+    if (!text) return "";
+
+    return text
+        .replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/gs, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+}
+
 function loadFromCookie() {
     const data = getCookie('fhomeai_data');
     if (data) {
@@ -182,7 +192,7 @@ function renderMessages() {
             <img src="${msg.role === 'user' ? settings.userAvatar : 'icon.png'}" 
                  class="message-avatar" 
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%232ea67d\'/%3E%3Ctext x=\'50\' y=\'50\' font-size=\'40\' text-anchor=\'middle\' dy=\'.3em\' fill=\'white\' font-family=\'Arial\'%3E${msg.role === 'user' ? 'U' : 'F'}%3C/text%3E%3C/svg%3E'">
-            <div class="message-content">${msg.content}</div>
+            <div class="message-content">${parseMarkdownBold(msg.content)}</div>
         </div>
     `).join('');
     container.scrollTop = container.scrollHeight;
