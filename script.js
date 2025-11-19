@@ -690,17 +690,6 @@ function openChatModal() {
     const modalList = document.getElementById('chatModalList');
     modalList.innerHTML = '';
 
-    const newChatBtn = document.createElement('button');
-    newChatBtn.className = 'new-chat-btn';
-    newChatBtn.textContent = '+ New Chat';
-    newChatBtn.addEventListener('click', () => {
-        createNewChat();
-        renderChats();
-        renderChatManagerChats();
-        refreshChatModal();
-    });
-    modalList.appendChild(newChatBtn);
-
     chats.forEach(chat => {
         const chatItem = document.createElement('div');
         chatItem.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
