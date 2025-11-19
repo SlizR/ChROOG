@@ -688,21 +688,72 @@ function openChatModal() {
     modal.classList.add('active');
 
     const modalList = document.getElementById('chatModalList');
-    modalList.innerHTML = chats.map(chat => `
-        <div class="chat-item ${chat.id === currentChatId ? 'active' : ''}" onclick="selectChat(${chat.id}); closeChatModal();">
-            <span class="chat-title">${chat.title}</span>
-            <div class="chat-actions" style="opacity: 1;">
-                <button class="chat-action-btn" onclick="renameChat(${chat.id}, event)">✏️</button>
-                <button class="chat-action-btn" onclick="deleteChat(${chat.id}, event)">🗑️</button>
-            </div>
-        </div>
-    `).join('');
+    modalList.innerHTML = '';
 
     const newChatBtn = document.createElement('button');
     newChatBtn.className = 'new-chat-btn';
     newChatBtn.textContent = '+ New Chat';
-    newChatBtn.onclick = () => { createNewChat(); renderChats(); renderChatManagerChats(); };
-    modalList.parentNode.insertBefore(newChatBtn, modalList);
+    newChatBtn.addEventListener('click', () => {
+        createNewChat();
+        renderChats();
+        renderChatManagerChats();
+        refreshChatModal();
+    });
+    modalList.appendChild(newChatBtn);
+
+    chats.forEach(chat => {
+        const chatItem = document.createElement('div');
+        chatItem.className = `chat-item ${chat.id === currentChatId ? 'active' : ''}`;
+        
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'chat-title';
+        titleSpan.textContent = chat.title;
+        chatItem.appendChild(titleSpan);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'chat-actions';
+        actionsDiv.style.opacity = 1;
+
+        const renameBtn = document.createElement('button');
+        renameBtn.className = 'chat-action-btn';
+        renameBtn.textContent = '✏️';
+        renameBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            renameChat(chat.id);
+            refreshChatModal();
+        });
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'chat-action-btn';
+        deleteBtn.textContent = '🗑️';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteChat(chat.id);
+            refreshChatModal();
+        });
+
+        actionsDiv.appendChild(renameBtn);
+        actionsDiv.appendChild(deleteBtn);
+        chatItem.appendChild(actionsDiv);
+
+        chatItem.addEventListener('click', () => {
+            selectChat(chat.id);
+            closeChatModal();
+        });
+
+        modalList.appendChild(chatItem);
+    });
+}
+
+function refreshChatModal() {
+    if (document.getElementById('chatModal')?.classList.contains('active')) {
+        openChatModal();
+    }
+}
+
+function closeChatModal() {
+    const modal = document.getElementById('chatModal');
+    modal.classList.remove('active');
 }
 
 document.getElementById('chatModal').addEventListener('click', (e) => {
@@ -710,11 +761,6 @@ document.getElementById('chatModal').addEventListener('click', (e) => {
         closeChatModal();
     }
 });
-
-function closeChatModal() {
-    const modal = document.getElementById('chatModal');
-    modal.classList.remove('active');
-}
 
 window.selectChat = selectChat;
 window.deleteChat = deleteChat;
