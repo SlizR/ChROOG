@@ -678,15 +678,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ----------------- System Mobile -----------------
+
 function openChatModal() {
     const modal = document.getElementById('chatModal');
     modal.classList.add('active');
 
     const modalList = document.getElementById('chatModalList');
-    modalList.innerHTML = chats.map(chat => `
+
+    modalList.innerHTML = `
+        <div class="chat-item new-chat-item" onclick="createNewChat(); closeChatModal();">
+            <span>+ New chat</span>
+        </div>
+    ` + chats.map(chat => `
         <div class="chat-item ${chat.id === currentChatId ? 'active' : ''}" onclick="selectChat(${chat.id}); closeChatModal();">
             <span class="chat-title">${chat.title}</span>
-            <div class="chat-actions">
+            <div class="chat-actions" style="opacity:1; pointer-events:auto;">
                 <button class="chat-action-btn" onclick="renameChat(${chat.id}, event)">✏️</button>
                 <button class="chat-action-btn" onclick="deleteChat(${chat.id}, event)">🗑️</button>
             </div>
@@ -698,6 +705,64 @@ function closeChatModal() {
     const modal = document.getElementById('chatModal');
     modal.classList.remove('active');
 }
+
+document.addEventListener('click', e => {
+    const modal = document.getElementById('chatModal');
+    if (!modal) return;
+
+    if (modal.classList.contains('active') && !e.target.closest('.modal-content')) {
+        closeChatModal();
+    }
+});
+
+function renameChat(id, event) {
+    if (event) event.stopPropagation();
+    const chat = chats.find(c => c.id === id);
+    if (!chat) return;
+
+    const newTitle = prompt("Write a new chat name:", chat.title);
+    if (!newTitle || !newTitle.trim()) return;
+
+    chat.title = newTitle.trim();
+    saveToCookie();
+
+    renderChats();
+    renderChatManagerChats();
+}
+
+function deleteChat(id, event) {
+    if (event) event.stopPropagation();
+    if (!confirm("Delete this chat?")) return;
+
+    chats = chats.filter(c => c.id !== id);
+
+    if (currentChatId === id) {
+        currentChatId = chats.length ? chats[0].id : null;
+    }
+
+    saveToCookie();
+
+    renderChats();
+    renderChatManagerChats();
+    renderMessages();
+}
+
+function createNewChat() {
+    const chat = {
+        id: Date.now(),
+        title: 'New chat',
+        messages: [],
+        createdAt: new Date().toISOString()
+    };
+    chats.unshift(chat);
+    currentChatId = chat.id;
+    saveToCookie();
+    renderChats();
+    renderMessages();
+    renderChatManagerChats();
+}
+
+// ----------------- System Mobile -----------------
 
 window.selectChat = selectChat;
 window.deleteChat = deleteChat;
