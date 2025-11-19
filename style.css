@@ -694,7 +694,7 @@ body {
         gap: 12px;
         height: calc(100vh - 62px - 100px);
         overflow-y: auto;
-        padding-bottom: 140px;
+        padding-bottom: 180px;
     }
 
     .input-area {
