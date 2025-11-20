@@ -42,8 +42,8 @@ function updateMessageLimitUI() {
 
     if (canSend) {
         sendBtn.disabled = false;
-        sendBtn.textContent = 'Send';
-        input.placeholder = 'Ask...';
+        sendBtn.textContent = '🢡';
+        input.placeholder = 'Ask FHome AI anything...';
     } else {
         sendBtn.disabled = true;
         sendBtn.textContent = '✖';
