@@ -1,6 +1,5 @@
 const WORKER_URL = 'https://gemini-api-proxy.markd-voznyuk.workers.dev';
-const MESSAGE_LIMIT = 70;
-const LIMIT_DURATION = 60 * 60 * 1000;
+const DAILY_LIMIT = 50;
 
 let chats = [];
 let currentChatId = null;
@@ -12,45 +11,75 @@ let settings = {
     userHobby: '',
     userBio: ''
 };
-let messageTimestamps = JSON.parse(localStorage.getItem('messageTimestamps') || '[]');
 
-function saveTimestamps() {
-    localStorage.setItem('messageTimestamps', JSON.stringify(messageTimestamps));
-}
+const uiOriginal = {
+    buttonText: null,
+    placeholder: null
+};
 
-function canSendMessage() {
-    const now = Date.now();
-    messageTimestamps = messageTimestamps.filter(ts => now - ts < LIMIT_DURATION);
-    saveTimestamps();
-    return messageTimestamps.length < MESSAGE_LIMIT;
-}
+function loadDailyData() {
+    const data = JSON.parse(localStorage.getItem("dailyMessageData")) || {
+        date: new Date().toDateString(),
+        count: 0
+    };
 
-function getNextAvailableTime() {
-    const now = Date.now();
-    if (messageTimestamps.length < MESSAGE_LIMIT) return 0;
-    return LIMIT_DURATION - (now - messageTimestamps[0]);
-}
-
-function updateMessageLimitUI() {
-    const input = document.getElementById('messageInput');
-    const sendBtn = document.getElementById('sendBtn');
-
-    const timeLeft = getNextAvailableTime();
-    const canSend = canSendMessage();
-
-    if (!input || !sendBtn) return;
-
-    if (canSend) {
-        sendBtn.disabled = false;
-        sendBtn.textContent = '🢡';
-        input.placeholder = 'Ask FHome AI anything...';
-    } else {
-        sendBtn.disabled = true;
-        sendBtn.textContent = '✖';
-        const minutes = Math.floor(timeLeft / 60000);
-        const seconds = Math.floor((timeLeft % 60000) / 1000);
-        input.placeholder = `Until the limit expired: ${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+    if (data.date !== new Date().toDateString()) {
+        data.date = new Date().toDateString();
+        data.count = 0;
+        localStorage.setItem("dailyMessageData", JSON.stringify(data));
     }
+
+    return data;
+}
+
+function canSendDaily() {
+    const data = loadDailyData();
+    return data.count < DAILY_LIMIT;
+}
+
+function increaseDailyCounter() {
+    const data = loadDailyData();
+    data.count++;
+    localStorage.setItem("dailyMessageData", JSON.stringify(data));
+}
+
+function getTimeUntilReset() {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setHours(24, 0, 0, 0);
+
+    let diff = Math.floor((tomorrow - now) / 1000);
+
+    const hours = String(Math.floor(diff / 3600)).padStart(2, '0');
+    diff %= 3600;
+    const minutes = String(Math.floor(diff / 60)).padStart(2, '0');
+    const seconds = String(diff % 60).padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+function updateDailyUI() {
+    const data = loadDailyData();
+    const sendBtn = document.getElementById("sendBtn");
+    const input = document.getElementById("messageInput");
+
+    if (uiOriginal.buttonText === null) {
+        uiOriginal.buttonText = sendBtn.textContent;
+        uiOriginal.placeholder = input.placeholder;
+    }
+
+    if (data.count < DAILY_LIMIT) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = uiOriginal.buttonText;
+        input.placeholder = uiOriginal.placeholder;
+        return;
+    }
+
+    sendBtn.disabled = true;
+
+    const timeLeft = getTimeUntilReset();
+    sendBtn.textContent = "✖";
+    input.placeholder = `Daily limit reached — wait ${timeLeft}`;
 }
 
 function escapeHTML(str) {
@@ -66,7 +95,10 @@ function escapeHTML(str) {
     });
 }
 
-setInterval(updateMessageLimitUI, 1000);
+setInterval(() => {
+    updateDailyUI();
+    if (typeof updateMessageLimitUI === "function") updateMessageLimitUI();
+}, 1000);
 
 function copyCode(button) {
     const codeBlock = button.closest('.code-block-container').querySelector('pre code');
