@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - FHome AI®</title>
+  <link rel="icon" href="404.ico">
+    <meta name="author" content="Sliz®">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" type="image/ico" href="https://fhai.pp.ua/favicon.ico">
+    <link rel="apple-touch-icon" href="https://fhai.pp.ua/404.png">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://fhai.pp.ua/404.ico">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0a1a0f 0%, #0d2818 50%, #0a1a0f 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .neural-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+    .neural-bg svg {
+      width: 100%;
+      height: 100%;
+    }
+    .node {
+      fill: #22c55e;
+      opacity: 0.6;
+    }
+    .connection {
+      stroke: #22c55e;
+      stroke-width: 1;
+      opacity: 0.2;
+    }
+    .pulse {
+      fill: #4ade80;
+      opacity: 0;
+    }
+    @keyframes nodePulse {
+      0%, 100% { opacity: 0.3; r: 3; }
+      50% { opacity: 0.8; r: 5; }
+    }
+    @keyframes signalFlow {
+      0% { stroke-dashoffset: 100; opacity: 0; }
+      50% { opacity: 0.6; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.1); }
+      50% { box-shadow: 0 0 50px rgba(34, 197, 94, 0.3), 0 0 100px rgba(34, 197, 94, 0.2); }
+    }
+    @keyframes textGlow {
+      0%, 100% { text-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+      50% { text-shadow: 0 0 40px rgba(34, 197, 94, 0.8), 0 0 60px rgba(34, 197, 94, 0.4); }
+    }
+    @keyframes borderGlow {
+      0%, 100% { border-color: rgba(34, 197, 94, 0.3); }
+      50% { border-color: rgba(34, 197, 94, 0.6); }
+    }
+    @keyframes glowPulseError {
+      0%, 100% { box-shadow: 0 0 30px rgba(220, 38, 38, 0.2), 0 0 60px rgba(220, 38, 38, 0.1); }
+      50% { box-shadow: 0 0 50px rgba(220, 38, 38, 0.3), 0 0 100px rgba(220, 38, 38, 0.2); }
+    }
+    @keyframes borderGlowError {
+      0%, 100% { border-color: rgba(220, 38, 38, 0.3); }
+      50% { border-color: rgba(220, 38, 38, 0.6); }
+    }
+    @keyframes nodePulseError {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .floating-particles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #22c55e;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    @keyframes particleFloat {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+    }
+    .content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 40px;
+    }
+    .card {
+      background: rgba(10, 26, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 24px;
+      padding: 60px 80px;
+      max-width: 600px;
+      animation: glowPulse 4s ease-in-out infinite, borderGlow 3s ease-in-out infinite; 
+      transition: all 0.5s ease;
+    }
+    .card.error-mode {
+      background: rgba(26, 10, 10, 0.85);
+      border-color: rgba(220, 38, 38, 0.3);
+      animation: glowPulseError 4s ease-in-out infinite, borderGlowError 3s ease-in-out infinite;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .logo-text span {
+      color: #22c55e;
+    }
+    .error-code {
+      font-size: 140px;
+      font-weight: 800;
+      color: transparent;
+      background: linear-gradient(135deg, #22c55e 0%, #4ade80 50%, #22c55e 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 20px;
+      animation: textGlow 3s ease-in-out infinite;
+    }
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .error-title {
+      font-size: 28px;
+      color: #e2e8f0;
+      font-weight: 600;
+      margin-bottom: 16px;
+      word-wrap: break-word;
+    }
+    .error-message {
+      font-size: 16px;
+      color: #94a3b8;
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .status-box {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 12px;
+      padding: 16px 24px;
+      margin-bottom: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+    .status-box.offline {
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.2);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: nodePulse 2s ease-in-out infinite;
+      transition: background 0.3s ease;
+    }
+    .status-dot.offline {
+      background: #dc2626;
+      animation: nodePulseError 1s ease-in-out infinite;
+    }
+
+    .status-text {
+      color: #4ade80;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    .status-text.offline {
+      color: #f87171;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(34, 197, 94, 0.5);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: #22c55e;
+      border: 2px solid rgba(34, 197, 94, 0.4);
+    }
+    .btn-secondary:hover {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: #22c55e;
+      transform: translateY(-2px);
+    }
+    .btn svg {
+      width: 18px;
+      height: 18px;
+    }
+    .footer-links {
+      margin-top: 40px;
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+    }
+    .footer-link {
+      color: #64748b;
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.3s ease;
+    }
+    .footer-link:hover {
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="neural-bg">
+    <svg id="neuralNetwork"></svg>
+  </div>
+  <div class="floating-particles" id="particles"></div>
+  <div class="content">
+    <div class="card" id="mainCard">
+      <div class="logo">
+        <div class="logo-icon">
+          <img src="logo.png" alt="FHome AI logo" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.style.display='none'">
+        </div>
+        <div class="logo-text">FHome <span>AI</span></div>
+      </div>
+      <div class="error-code">404</div>
+      
+      <h1 class="error-title" id="errorTitle">Your page not found</h1>
+      
+      <p class="error-message">Try returning home or refreshing the page.</p>
+      
+      <div class="status-box" id="statusBox">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-text" id="statusText">Checking Systems...</span>
+      </div>
+
+      <div class="buttons">
+        <a href="https://fhai.pp.ua/" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          Back to Home
+        </a>
+        
+        <a href="#" class="btn btn-secondary" onclick="forceReload(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Reload
+        </a>
+      </div>
+      
+    </div>
+  </div>
+  <script>
+    function updateErrorPath() {
+        const currentPath = window.location.pathname;
+        const titleElement = document.getElementById('errorTitle');
+        if (currentPath && currentPath !== '/') {
+            titleElement.textContent = `Your page: ${currentPath}, not found`;
+        } else {
+            titleElement.textContent = `Page not found`;
+        }
+    }
+
+    async function checkSystemStatus() {
+        const statusBox = document.getElementById('statusBox');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const mainCard = document.getElementById('mainCard');
+
+        const targetUrl = 'https://fhai.pp.ua/';
+
+        try {
+            await fetch(targetUrl, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
+            
+            statusBox.classList.remove('offline');
+            statusDot.classList.remove('offline');
+            statusText.classList.remove('offline');
+            mainCard.classList.remove('error-mode');
+            statusText.textContent = 'The FHome AI server is working properly.';
+            
+        } catch (error) {
+            console.error('System Check Failed:', error);
+            statusBox.classList.add('offline');
+            statusDot.classList.add('offline');
+            statusText.classList.add('offline');
+            mainCard.classList.add('error-mode');
+            statusText.textContent = 'FHome AI servers are not working properly.';
+        }
+    }
+
+    function forceReload(e) {
+        e.preventDefault();
+        location.reload();
+    }
+
+    const svg = document.getElementById('neuralNetwork');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    const nodes = [];
+    const nodeCount = 60;
+    
+    function getDimensions() {
+      return { width: window.innerWidth, height: window.innerHeight };
+    }
+    
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5
+      });
+    }
+    function createConnections() {
+      let connectionsHTML = '';
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 200) {
+            const opacity = (1 - dist / 200) * 0.3;
+            connectionsHTML += `<line class="connection" x1="${nodes[i].x}" y1="${nodes[i].y}" x2="${nodes[j].x}" y2="${nodes[j].y}" style="opacity: ${opacity}"/>`;
+          }
+        }
+      }
+      return connectionsHTML;
+    }
+    function createNodes() {
+      return nodes.map((node, i) => {
+        const delay = Math.random() * 3;
+        return `<circle class="node" cx="${node.x}" cy="${node.y}" r="3" style="animation: nodePulse ${2 + Math.random() * 2}s ease-in-out ${delay}s infinite"/>`;
+      }).join('');
+    }
+    function updateNetwork() {
+      const { width, height } = getDimensions();
+      nodes.forEach(node => {
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < 0 || node.x > width) node.vx *= -1;
+        if (node.y < 0 || node.y > height) node.vy *= -1;
+      });
+      svg.innerHTML = createConnections() + createNodes();
+      requestAnimationFrame(updateNetwork);
+    }
+    
+    const particlesContainer = document.getElementById('particles');
+    
+    function createParticle() {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDuration = (8 + Math.random() * 8) + 's';
+      particle.style.animationDelay = Math.random() * 5 + 's';
+      particle.style.animation = `particleFloat ${8 + Math.random() * 8}s linear infinite`;
+      particlesContainer.appendChild(particle);
+      
+      if (particlesContainer.children.length > 30) {
+        particlesContainer.removeChild(particlesContainer.firstChild);
+      }
+    }
+    
+    window.onload = function () {
+      updateErrorPath();
+      checkSystemStatus();
+
+      updateNetwork();
+      for (let i = 0; i < 20; i++) {
+        setTimeout(createParticle, i * 200);
+      }
+      setInterval(createParticle, 800);
+    }
+    
+    window.addEventListener('resize', () => {
+    });
+
+  </script>
+</body>
+</html>
