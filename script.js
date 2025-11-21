@@ -442,20 +442,20 @@ function prepareMessageForAI() {
     return { uiMessage, aiMessage };
 }
 
+function updateMessageLimitUI() {
+    updateDailyUI();
+}
+
 async function sendMessage() {
     const input = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
 
     if (!input || !sendBtn) return;
 
-    if (!canSendMessage()) {
-        updateMessageLimitUI();
-        return;
-    }
-
-    messageTimestamps.push(Date.now());
-    saveTimestamps();
-    updateMessageLimitUI();
+if (!canSendDaily()) {
+    updateDailyUI();
+    return;
+}
 
     const prepared = prepareMessageForAI();
     const uiMessage = prepared.uiMessage;
@@ -499,14 +499,17 @@ async function sendMessage() {
     sendBtn.disabled = true;
 
     try {
-        const response = await fetch(WORKER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [...chat.messages, { role: 'user', content: aiMessage }],
-                settings: settings
-            })
-        });
+increaseDailyCounter();
+updateDailyUI();
+
+const response = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        messages: chat.messages,
+        settings: settings
+    })
+});
 
         const data = await response.json();
         typingIndicator.remove();
@@ -529,7 +532,6 @@ async function sendMessage() {
         renderMessages();
     }
 
-    updateMessageLimitUI();
 }
 function handleKeyPress(event) {
     const input = document.getElementById('messageInput');
