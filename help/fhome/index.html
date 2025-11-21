@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FHome AI® Help Center - FHome AI Project</title>
+    <link rel="icon" href="https://fhai.pp.ua/help/fhome.png">
+    <meta property="og:image" content="https://fhai.pp.ua/help/fhome.png">
+    <link rel="icon" type="image/png" href="https://fhai.pp.ua/help/fhome.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a1f0a 0%, #1a3a1a 50%, #0d2b0d 100%);
+            color: #e0ffe0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(76, 255, 76, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 2rem 5%;
+            background: rgba(10, 31, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(76, 255, 76, 0.2);
+            animation: slideDown 0.6s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4cff4c, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(76, 255, 76, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(76, 255, 76, 0.8));
+            }
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, rgba(76, 255, 76, 0.2), rgba(0, 255, 136, 0.2));
+            color: #4cff4c;
+            text-decoration: none;
+            border-radius: 50px;
+            border: 2px solid rgba(76, 255, 76, 0.3);
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, rgba(76, 255, 76, 0.3), rgba(0, 255, 136, 0.3));
+            border-color: rgba(76, 255, 76, 0.6);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(76, 255, 76, 0.3);
+        }
+
+        main {
+            position: relative;
+            z-index: 5;
+            padding: 4rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-section h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #4cff4c, #00ff88, #4cff4c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .image-section {
+            display: flex;
+            justify-content: center;
+            margin: 3rem 0 4rem 0;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .sliz-image {
+            width: 350px;
+            height: 350px;
+            background: linear-gradient(135deg, #4cff4c, #00ff88);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10rem;
+            position: relative;
+            animation: pulse 3s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(76, 255, 76, 0.6),
+                        0 0 120px rgba(76, 255, 76, 0.4),
+                        inset 0 0 60px rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 60px rgba(76, 255, 76, 0.6),
+                            0 0 120px rgba(76, 255, 76, 0.4),
+                            inset 0 0 60px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 80px rgba(76, 255, 76, 0.8),
+                            0 0 160px rgba(76, 255, 76, 0.6),
+                            inset 0 0 80px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        .sliz-image::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            right: -20px;
+            bottom: -20px;
+            border-radius: 50%;
+            border: 3px solid rgba(76, 255, 76, 0.3);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .content-section {
+            background: linear-gradient(135deg, rgba(26, 58, 26, 0.4), rgba(13, 43, 13, 0.4));
+            border: 2px solid rgba(76, 255, 76, 0.3);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.8s ease 0.4s both;
+            line-height: 1.9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(76, 255, 76, 0.05) 0%, transparent 70%);
+            animation: rotate 15s linear infinite;
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+            color: #4cff4c;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-section h2:first-child {
+            margin-top: 0;
+        }
+
+        .content-section p {
+            font-size: 1.15rem;
+            color: #c0ffc0;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+            text-align: justify;
+        }
+
+        .content-section strong {
+            color: #4cff4c;
+            font-weight: 600;
+        }
+
+        footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem 5%;
+            margin-top: 5rem;
+            background: rgba(10, 31, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(76, 255, 76, 0.2);
+            color: #a0ffa0;
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .sliz-image {
+                width: 250px;
+                height: 250px;
+                font-size: 7rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .content-section {
+                padding: 2rem;
+            }
+
+            .content-section h2 {
+                font-size: 2rem;
+            }
+
+            .content-section p {
+                font-size: 1rem;
+            }
+        }
+      
+    .hero-title-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.hero-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(76, 255, 76, 0.5);
+}
+
+.hero-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <header>
+        <div class="header-content">
+            <div class="logo">FHome AI® Help Center - FHome AI Project</div>
+            <a href="https://fhai.pp.ua/help/" class="back-btn">← Back to Help</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+    <div class="hero-title-wrapper">
+        <div class="hero-icon">
+            <img src="https://fhai.pp.ua/help/fhome.png" alt="FHome AI® Icon">
+        </div>
+        <h1>FHome AI®</h1>
+    </div>
+</section>
+
+    <section class="content-section">
+    <h2>About FHome AI®</h2>
+    <p>FHome AI® – Education AI: a modern, open-source web assistant built to demonstrate how AI interfaces work under the hood. Ideal for students, teachers, schools, and anyone curious about building their own AI-powered chat system. This project is part of the Sliz® ecosystem and was created to help beginners understand conversational AI, UI logic, and browser-based local data storage.</p>
+
+    <h2>Features</h2>
+    <ul>
+        <li>🌱 <strong>Beginner-friendly AI Interface:</strong> Clean, responsive chat UI mimicking modern AI assistants — messages, avatars, typing animations.</li>
+        <li>🧠 <strong>Integration with Google Gemini API:</strong> Uses gemini-2.0-flash:generateContent to search for information and respond to user responses. Gemini AI is not used, only the search API.</li>
+        <li>🧩 <strong>Local Chat History:</strong> Conversations are saved in browser cookies — no backend required.</li>
+        <li>🎨 <strong>Customization Tools:</strong> Change display name, avatar, message border radius, and preview avatar live in settings modal.</li>
+        <li>📱 <strong>Fully Responsive:</strong> Smooth mobile experience with slide-in sidebar and adaptive layout.</li>
+        <li>🪄 <strong>Typing Animation:</strong> Modern typing indicator for AI messages.</li>
+    </ul>
+
+    <h2>Technology Stack</h2>
+    <ul>
+        <li>Frontend: HTML5, CSS3, JavaScript (Vanilla)</li>
+        <li>AI Backend: Google Gemini API</li>
+        <li>Storage: Cookies</li>
+        <li>Icons: SVG / PNG</li>
+        <li>Compatibility: Chrome, Firefox, Safari, Mobile browsers</li>
+    </ul>
+
+    <h2>How It Works</h2>
+    <ol>
+        <li><strong>UI Rendering:</strong> Sidebar (chat list, new chat button, settings), Main area (messages), Settings modal.</li>
+        <li><strong>Chat Handling:</strong> Chats are stored as objects in local memory and cookies.</li>
+        <li><strong>Saving to Cookies:</strong> setCookie('fhomeai_data', JSON.stringify({chats, settings}), 365); ensures fully local and privacy-friendly operation.</li>
+        <li><strong>AI Request Flow:</strong> User messages are wrapped in instruction blocks, sent to Gemini API, and responses appended to chat with typing indicator.</li>
+    </ol>
+
+    <h2>API Requirements</h2>
+    <p>You need a Google AI Studio API key: <a href="https://aistudio.google.com" target="_blank">https://aistudio.google.com</a>. Update in code with: <code>const API_KEY = "YOUR_API_KEY_HERE";</code></p>
+
+    <h2>Running Locally</h2>
+    <p>Clone the repo:</p>
+    <pre><code>git clone https://github.com/SlizR/FHome_AI.git
+cd FHome_AI
+Open index.html in a browser</code></pre>
+    <p>No backend needed — fully client-side. Optional local hosting: <code>npx serve</code>.</p>
+
+    <h2>Customization</h2>
+    <ul>
+        <li>Change colors in CSS gradients.</li>
+        <li>Modify assistant personality via <code>getSystemInstruction()</code> function.</li>
+        <li>Replace AI model endpoint in <code>const API_URL</code>.</li>
+    </ul>
+
+    <h2>Known Limitations</h2>
+    <ul>
+        <li>Cookies store limited data (~3–4 MB).</li>
+        <li>No streaming support — responses appear after full generation.</li>
+    </ul>
+
+    <h2>Roadmap</h2>
+    <ul>
+        <li>Switch cookies → IndexedDB</li>
+        <li>Add real-time streaming</li>
+        <li>Add dark/light theme toggle</li>
+        <li>Add custom model selection menu</li>
+        <li>Cloud sync for chats</li>
+    </ul>
+
+    <h2>License</h2>
+    <p>Apache License 2.0. Required attribution: Original author: Sliz®, First public version: Mavox-ID. Full license in the LICENSE file.</p>
+
+    <h2>Final Notes</h2>
+    <p>FHome AI® was built to teach, not to replace industrial AI tools. It demonstrates how small and understandable an AI chat interface can be. Keep attribution lines if you use or modify the project.</p>
+</section>
+    </main>
+
+    <footer>
+        <p>FHome AI® • © 2025 Sliz®</p>
+    </footer>
+
+    <script>
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const image = document.querySelector('.sliz-image');
+            if (image) {
+                image.style.transform = `translateY(${scrolled * 0.1}px) scale(${1 + scrolled * 0.0001})`;
+            }
+        });
+    </script>
+</body>
+</html>
