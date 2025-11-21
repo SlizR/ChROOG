@@ -20,12 +20,14 @@ const uiOriginal = {
 
 function loadDailyData() {
     const data = JSON.parse(localStorage.getItem("dailyMessageData")) || {
-        date: new Date().toDateString(),
+        lastReset: null,
         count: 0
     };
 
-    if (data.date !== new Date().toDateString()) {
-        data.date = new Date().toDateString();
+    const now = Date.now();
+
+    if (!data.lastReset || (now - data.lastReset >= 24 * 60 * 60 * 1000)) {
+        data.lastReset = now;
         data.count = 0;
         localStorage.setItem("dailyMessageData", JSON.stringify(data));
     }
@@ -41,15 +43,19 @@ function canSendDaily() {
 function increaseDailyCounter() {
     const data = loadDailyData();
     data.count++;
+    if (!data.lastReset) {
+        data.lastReset = Date.now();
+    }
     localStorage.setItem("dailyMessageData", JSON.stringify(data));
 }
 
 function getTimeUntilReset() {
-    const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setHours(24, 0, 0, 0);
+    const data = loadDailyData();
+    const now = Date.now();
+    const resetTime = data.lastReset + 24 * 60 * 60 * 1000;
+    let diff = Math.floor((resetTime - now) / 1000);
 
-    let diff = Math.floor((tomorrow - now) / 1000);
+    if (diff < 0) diff = 0;
 
     const hours = String(Math.floor(diff / 3600)).padStart(2, '0');
     diff %= 3600;
