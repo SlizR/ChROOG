@@ -1,4 +1,4 @@
-![FHome_AI Photo](Assets/photo.png)
+![FHome_AI Photo](Assets/photo.gif)
 
 ---
 
