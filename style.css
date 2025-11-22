@@ -931,3 +931,18 @@ body {
         font-size: 0.8rem;
     }
 }
+.modal-content {
+    padding: 18px 30px;
+}
+
+.setting-group {
+    margin-bottom: 15px;
+}
+
+.modal-header {
+    margin-bottom: 15px;
+}
+
+.modal-content {
+    max-width: 460px;
+}
